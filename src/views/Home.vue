@@ -107,11 +107,9 @@ export default {
                 type: "",
                 deleted: false,
 
-                
-                page: 0,
-                size: 20,
-                sort: '',
-                count: 0
+                pageSize: 20,
+                total: 0,
+                currentPage: 1
             },
             vo: {
                 id: "",
