@@ -152,7 +152,6 @@ export default {
         },
         onSubmit() {
             this.refresh()
-            console.log(this.query)
         },
         handleClick() {
         },
@@ -168,12 +167,14 @@ export default {
             this.$message.success('success');
             await this.init();
         },
-        onSave() {
+        async onSave() {
             if (this.vo.id) {
-                this.update(this.vo);
+                await this.update();
             } else {
-                this.insert(this.vo);
+                await this.insert();
             }
+            this.$message.success('success');
+            await this.init();
             this.updateDialogVisible = false
         },
         get(id) {
@@ -210,20 +211,18 @@ export default {
                 }
             });
         },
-        insert(form) {
-            return axios.post('/api/sys/sys_menu/insert', {
+        async insert() {
+            return await axios.post('/api/sys/sys_menu/insert', {
+                ...this.vo
+            })
+        },
+        async update() {
+            return await axios.post('/api/sys/sys_menu/update', {
                 ...this.vo
             });
         },
-        update(form) {
-            return axios.post('/api/sys/sys_menu/update', {
-                data: {
-                    ...form,
-                }
-            });
-        },
-        remove(id) {
-            return axios.delete('/api/sys/sys_menu/remove', {
+        async remove(id) {
+            return await axios.delete('/api/sys/sys_menu/remove', {
                 params: {
                     id
                 }
