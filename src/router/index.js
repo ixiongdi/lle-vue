@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import SysMenu from '../components/sys/SysMenu'
 
 Vue.use(VueRouter)
 
@@ -13,7 +14,8 @@ const routes = [
     {
         path: '/sys/menu',
         name: '',
-        component: () => import('../views/sys/SysMenu')
+        component: SysMenu
+        // component: () => import('../views/sys/SysMenu')
     },
     {
         path: '/sys/role',
@@ -28,7 +30,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-    mode: 'history',
+    // mode: 'history',
     base: process.env.BASE_URL,
     routes
 })

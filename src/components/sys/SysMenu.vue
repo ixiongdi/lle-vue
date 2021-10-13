@@ -1,16 +1,16 @@
 <template>
     <div>
-        <el-form :inline="true" :model="query" size="mini" @submit.native.prevent="onSubmit">
-            <el-form-item label="审批人">
+        <el-form :inline="true" :model="query" size="mini">
+            <el-form-item label="菜单名称">
                 <el-input v-model="query.name" placeholder="菜单名称"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="onSubmit">查询</el-button>
+                <el-button type="primary" @click="onSearch">查询</el-button>
             </el-form-item>
         </el-form>
 
         <div>
-            <el-button size="mini" type="primary" icon="el-icon-plus" @click="onInsert">添加</el-button>
+            <el-button size="mini" type="primary" icon="el-icon-plus" @click="onAdd">添加</el-button>
             <el-button size="mini" type="primary" icon="el-icon-delete" @click="onDelete">删除</el-button>
         </div>
 
@@ -18,7 +18,8 @@
                 border
                 size="mini"
                 :data="page.records"
-                @dblclick="onUpdate"
+                @dblclick="onRead"
+                @selection-change="onSelectionChange"
                 height="300">
             <el-table-column
                     type="selection">
@@ -29,7 +30,7 @@
             </el-table-column>
             <el-table-column prop="id" label="ID" width="100">
                 <template slot-scope="scope">
-                    {{scope.row.id}}
+                    {{ scope.row.id }}
                 </template>
             </el-table-column>
             <el-table-column prop="parentId" label="父ID" width="100"></el-table-column>
@@ -41,7 +42,7 @@
             <el-table-column prop="perms" label="权限" width="100"></el-table-column>
             <el-table-column prop="createTime" label="创建时间" width="150">
                 <template slot-scope="scope">
-                    {{scope.row.createTime}}
+                    {{ scope.row.createTime }}
                 </template>
             </el-table-column>
             <el-table-column prop="updateTime" label="修改时间" width="200"></el-table-column>
@@ -51,8 +52,8 @@
                     width="100">
                 <template slot-scope="scope">
                     <el-row>
-                        <el-button type="text" size="mini" @click="onUpdate(scope.row)">修改</el-button>
-                        <el-button type="text" size="mini" @click="onDelete(scope.row.id)">删除</el-button>
+                        <el-button type="text" size="mini" @click="onEdit(scope.row)">修改</el-button>
+                        <el-button type="text" size="mini" @click="onDelete(scope.row)">删除</el-button>
                     </el-row>
                 </template>
             </el-table-column>
@@ -62,40 +63,56 @@
                 background
                 @size-change="onSizeChange"
                 @current-change="onCurrentChange"
-                :current-page="page.current -1"
+                :current-page="page.current"
                 :page-sizes="[10, 20, 50, 100]"
                 :page-size="20"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="page.total">
         </el-pagination>
 
-        <el-dialog title="修改" :visible.sync="updateDialogVisible">
-            <el-form :model="vo" size="mini" label-width="100px">
-                <el-form-item label="parentId">
-                    <el-input v-model="vo.parentId" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="name">
-                    <el-input v-model="vo.name" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="url">
-                    <el-input v-model="vo.url" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="type">
-                    <el-input v-model="vo.type" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="icon">
-                    <el-input v-model="vo.icon" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="orderNum">
-                    <el-input v-model="vo.orderNum" placeholder="请输入内容"></el-input>
-                </el-form-item>
-                <el-form-item label="perms">
-                    <el-input v-model="vo.perms" placeholder="请输入内容"></el-input>
-                </el-form-item>
+        <el-dialog title="修改" :visible.sync="editDialogVisible">
+            <el-form :model="form" size="mini" label-width="100px">
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="parentId">
+                            <el-input v-model="form.parentId" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="name">
+                            <el-input v-model="form.name" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="url">
+                            <el-input v-model="form.url" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="type">
+                            <el-input v-model="form.type" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="icon">
+                            <el-input v-model="form.icon" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="orderNum">
+                            <el-input v-model="form.orderNum" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="perms">
+                            <el-input v-model="form.perms" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="updateDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="onSave">确 定</el-button>
+                <el-button @click="editDialogVisible = false">取 消</el-button>
+                <el-button type="primary" native-type="submit" @click="onSubmit">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -103,22 +120,16 @@
 </template>
 
 <script>
-import axios from 'axios';
-
-// axios.defaults.baseURL = 'http://localhost:8080';
-// axios.defaults.withCredentials = true;
+import Breads from '../common/Breads'
 
 export default {
+    name: "SysMenu",
+    extends: Breads,
     data() {
         return {
-            updateDialogVisible: false,
-            tableData: [],
-            query: {
-                name: "",
-                type: "",
-                deleted: false,
-            },
-            vo: {
+            package: 'sys',
+            class: 'sys_menu',
+            form: {
                 id: "",
                 parentId: "",
                 name: "",
@@ -127,110 +138,12 @@ export default {
                 icon: "",
                 orderNum: "",
                 perms: ""
-            },
-            page: {
-                records: [],
-                total: 0,
-                size: 10,
-                current: 1,
-                orders: [],
             }
         }
     },
     created() {
-        this.init();
+        this.onBrowse()
     },
-    methods: {
-        onSizeChange() {},
-        onCurrentChange() {},
-        async refresh() {
-            const {data} = await this.index();
-            this.page = data.data
-        },
-        async init() {
-            await this.refresh();
-        },
-        onSubmit() {
-            this.refresh()
-        },
-        handleClick() {
-        },
-        onInsert() {
-            this.updateDialogVisible = true
-        },
-        onUpdate(row) {
-            this.vo = row;
-            this.updateDialogVisible = true
-        },
-        async onDelete(id) {
-            await this.delete(id)
-            this.$message.success('success');
-            await this.init();
-        },
-        async onSave() {
-            if (this.vo.id) {
-                await this.update();
-            } else {
-                await this.insert();
-            }
-            this.$message.success('success');
-            await this.init();
-            this.updateDialogVisible = false
-        },
-        get(id) {
-            return axios.get('/api/sys/sys_menu/get', {
-                params: {
-                    id
-                }
-            });
-        },
-        filterEmpty(params) {
-            let result = {}
-            for (const key in params) {
-                if (params.hasOwnProperty(key) && params[key]) {
-                    result[key] = params[key]
-                }
-            }
-            return result;
-        },
-        index() {
-            return axios.post('/api/sys/sys_menu/index', {
-                ...this.filterEmpty(this.query),
-                ...this.page
-            });
-        },
-        list() {
-            return axios.post('/api/sys/sys_menu/list', {
-                ...this.filterEmpty(this.query)
-            });
-        },
-        save(form) {
-            return axios.put('/api/sys/sys_menu/save', {
-                data: {
-                    ...form,
-                }
-            });
-        },
-        async insert() {
-            return await axios.post('/api/sys/sys_menu/insert', {
-                ...this.vo
-            })
-        },
-        async update() {
-            return await axios.post('/api/sys/sys_menu/update', {
-                ...this.vo
-            });
-        },
-        async remove(id) {
-            return await axios.delete('/api/sys/sys_menu/remove', {
-                params: {
-                    id
-                }
-            });
-        },
-        async delete(id) {
-            return await axios.post('/api/sys/sys_menu/delete?id=' + id);
-        },
-    }
+    methods: {}
 }
 </script>
